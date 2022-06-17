@@ -1,0 +1,22 @@
+node{
+stage("git clone "){
+ git branch: 'development', credentialsId: 'github_cred', url: 'https://github.com/vamsikrishna145/maven-web-application.git'
+}    
+ stage("build code"){
+     def mavenHome = tool name: "maven3.8.6"
+ sh "${mavenHome}/bin/mvn clean package "     
+ }   
+ stage("docker build "){
+ sh " docker build -t vamsidockerhub/mavenapp:1 ."
+ }
+ stage("docker login"){
+ withCredentials([string(credentialsId: 'docker_cred', variable: 'docker_cred')]) {
+ sh "docker login -u vamsidockerhub -p ${docker_cred} "
+}
+ sh "docker push vamsidockerhub/mavenapp:1 ."
+ }
+    
+    
+    
+    
+}
